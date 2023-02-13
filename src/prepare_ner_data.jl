@@ -1,6 +1,9 @@
+module Ner_Data
+
 using Embeddings
 using DataFrames
 
+export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM, SENTENCE_SIZE
 
 const SENTENCE_SIZE = 30
 const EMBEDDING_DIM = 100
@@ -8,7 +11,7 @@ const IOB_DIM = 3
 
 @info "Loading embeddings to memory"
 
-my_embtable = load_embeddings(GloVe{:en}, "./data/glove.6B.100d.txt") # or load_embeddings(FastText_Text) or ...
+my_embtable = load_embeddings(GloVe{:en}, "./data/glove.6B.100d.txt")
 my_get_word_index = Dict(word=>ii for (ii,word) in enumerate(my_embtable.vocab))
 my_emtable_vocab_values = values(my_embtable.vocab)
 
@@ -19,10 +22,10 @@ function load_dataset_to_matrix(path::String, separator)
     
     dataset_file = open(path)
     all_lines_tmp = readlines(dataset_file)
-    all_lines = filter((i) -> i != "" && in(lowercase(split(i, separator)[1]), emtable_vocab_values), all_lines_tmp) # && (lowercase(i) in emtable_vocab_values) == true
+    all_lines = filter((i) -> i != "" && in(lowercase(split(i, separator)[1]), my_emtable_vocab_values), all_lines_tmp)
     total_sentences = div(length(all_lines), SENTENCE_SIZE) + ((length(all_lines) % SENTENCE_SIZE) > 0) 
-    x_data = Array{Float64}(undef, total_sentences, SENTENCE_SIZE, EMBEDDING_DIM) #embeddings_arr
-    y_data = Array{Int}(undef, total_sentences, SENTENCE_SIZE, IOB_DIM)
+    x_data = Array{Float32}(undef, EMBEDDING_DIM, length(all_lines)) 
+    y_data = Vector{Int32}(undef, length(all_lines))
 
     @info "Converting tokens to embeddings representation"
 
@@ -34,28 +37,24 @@ function load_dataset_to_matrix(path::String, separator)
         splitted_line = split(line, separator)
         cur_word = first(splitted_line)
         entity_label = last(splitted_line)
-        iob_label = zeros(IOB_DIM)
+        iob_label = 0
 
         if entity_label == "O"
-            iob_label[1] = 1
+            iob_label = 1
         
         elseif entity_label[1] == 'B'
-            iob_label[2] = 1
+            iob_label = 2
         
         else
-            iob_label[3] = 1    
+            iob_label = 3    
         end
 
-        y_data[sentence_counter, line_counter, :] = iob_label
-        x_data[sentence_counter, line_counter, :] = get_embedding(cur_word)
+        y_data[cur_idx] = iob_label
+        x_data[:, cur_idx] = get_embedding(cur_word)
         
         if line_counter == SENTENCE_SIZE
             sentence_counter = sentence_counter + 1
             line_counter = 0
-        
-        elseif cur_idx == length(all_lines) && (length(all_lines) % SENTENCE_SIZE) > 0
-            x_data = pad_last_subarray_x(x_data, line_counter + 1)
-            y_data = pad_last_subarray_y(y_data, line_counter + 1)
         end
     end
 
@@ -66,7 +65,7 @@ end
 
 function pad_last_subarray_x(arr::Array, start_index::Int)
     for idx in start_index:SENTENCE_SIZE
-        arr[end, idx, :] = zeros(EMBEDDING_DIM)
+        arr[:, idx, end] = zeros(EMBEDDING_DIM)
     end
     
     return arr
@@ -74,7 +73,7 @@ end
 
 function pad_last_subarray_y(arr::Array, start_index::Int)
     for idx in start_index:SENTENCE_SIZE
-        arr[end, idx, :] = zeros(IOB_DIM)
+        arr[idx, end] = 1
     end
     
     return arr
@@ -84,11 +83,44 @@ function get_embedding(word)
     word = lowercase(word)
     ind = my_get_word_index[word]
     emb = my_embtable.embeddings[:,ind]
+    
     return emb
 end
 
-ontonotes_data_path = "./data/ontonotes5.0/train.conll"
-ontonotes_x, ontonotes_y = load_dataset_to_matrix(ontonotes_data_path, '\t')
+function prepare_conll_dataset()
+    conll_train_path = "./data/conll2003/train.txt"
+    conll_test_path = "./data/conll2003/test.txt"
+    conll_valid_path = "./data/conll2003/valid.txt"
+    
+    train_x, train_y = load_dataset_to_matrix(conll_train_path, ' ')
+    test_x, test_y = load_dataset_to_matrix(conll_test_path, ' ')
+    valid_x, valid_y = load_dataset_to_matrix(conll_valid_path, ' ')
 
-conll_data_path = "./data/conll2003/train.txt"
-conll_x, conll_y = load_dataset_to_matrix(conll_data_path, ' ')
+    return train_x, train_y, test_x, test_y, valid_x, valid_y
+end
+
+function prepare_ontonotes_dataset()
+    ontonotes_train_path = "./data/ontonotes5.0/train.conll"
+    ontonotes_test_path = "./data/ontonotes5.0/test.conll"
+    ontonotes_valid_path = "./data/ontonotes5.0/development.conll"
+
+    train_x, train_y = load_dataset_to_matrix(ontonotes_train_path, '\t')
+    test_x, test_y = load_dataset_to_matrix(ontonotes_test_path, '\t')
+    valid_x, valid_y = load_dataset_to_matrix(ontonotes_valid_path, '\t')
+
+    return train_x, train_y, test_x, test_y, valid_x, valid_y 
+end
+
+function reshape_x_to_rnn_format(arr)
+    x, y, z = size(arr)
+    
+    return reshape(arr, (x, (y * z)))
+end
+
+function reshape_y_to_rnn_format(arr)
+    x, y = size(arr)
+
+    return reshape(arr, (x * y))
+end
+
+end
