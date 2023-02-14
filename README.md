@@ -1,2 +1,2 @@
 # Projekt_lamossta
-try to commit
+NER and Titanic classification
