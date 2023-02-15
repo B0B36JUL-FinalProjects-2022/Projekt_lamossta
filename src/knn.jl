@@ -7,6 +7,18 @@ include("distance_functions.jl")
 export predict, find_nearest_neighbours, evaluate 
 
 
+"""
+    find_nearest_neighbours(k::Int64, distance_func::Any, train_x::Matrix{Float64}, train_y::Vector{Int64}, test_x::Matrix{Float64})
+
+Function to find k nearest neighbours and ultimately return predictions for test features.
+    
+# Arguments
+- `k`: k nearest neighbours
+- `distance_fnc`: function to compute distance with
+- `train_X`: Matrix with train x features
+- `train_y`: Vector with training labels
+- `test_x`: Matrix with testing features   
+"""
 function find_nearest_neighbours(k::Int64, distance_func::Any, train_x::Matrix{Float64}, train_y::Vector{Int64}, test_x::Matrix{Float64})
     rows, _ = size(test_x)
     predictions = Array{Int64}(undef, rows)
@@ -23,6 +35,15 @@ function find_nearest_neighbours(k::Int64, distance_func::Any, train_x::Matrix{F
     return predictions
 end
 
+"""
+    predict(k::Int64=3, distance_fnc::String="euclidean")
+
+Function to predict y labels on training dataset and eventually return accomplished accuracy and k value.
+    
+# Arguments
+- `k`: k nearest neighbours
+- `distance_fnc`: function to compute distance with   
+"""
 function predict(k::Int64=3, distance_fnc::String="euclidean")
     @info "K value: $k"
     
@@ -45,6 +66,16 @@ function predict(k::Int64=3, distance_fnc::String="euclidean")
     return k, acc_value
 end    
 
+
+"""
+    evaluate(predictions::Vector{Int64}, truth_labels::Vector{Int64})
+
+Function to evaluate predicted y labels against ground truth and ultimately return accuracy 
+    
+# Arguments
+- `predictions`: Vector with predicted y labels
+- `truth_labels`: Vector with ground truth labels    
+"""
 function evaluate(predictions::Vector{Int64}, truth_labels::Vector{Int64})
     acc_value = mean(predictions .== truth_labels)    
     return acc_value

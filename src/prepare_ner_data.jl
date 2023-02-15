@@ -1,12 +1,12 @@
 using Embeddings
 using DataFrames
 
-export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM, SENTENCE_SIZE, load_dataset_to_matrix, pad_last_subarray_x, pad_last_subarray_y, get_embedding, reshape_x_to_rnn_format, reshape_y_to_rnn_format   
+export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM, SENTENCE_SIZE, load_dataset_to_matrix, get_embedding   
 
 const SENTENCE_SIZE = 30
 const EMBEDDING_DIM = 100
 const IOB_DIM = 3
-const ASSETS_PATHE = chop(dirname(@__FILE__), tail=3) 
+ASSETS_PATHE = chop(dirname(@__FILE__), tail=3) 
 
 @info "Loading embeddings to memory"
 
@@ -16,7 +16,16 @@ my_emtable_vocab_values = values(my_embtable.vocab)
 
 @info "Embeddings has been loaded to memory"
 
-function load_dataset_to_matrix(path::String, separator)
+"""
+    load_dataset_to_matrix(path::String, separator::Char)
+
+Function to load data from conll or OntoNotes dataset and return it in the form of x features and y labels.
+    
+# Arguments
+- `path`: Path to dataset file
+- `separator`: Separator char of individual data   
+"""
+function load_dataset_to_matrix(path::String, separator::Char)
     @info "Tokenizing words from dataset"
     
     dataset_file = open(path)
@@ -62,23 +71,15 @@ function load_dataset_to_matrix(path::String, separator)
     return x_data, y_data
 end
 
-function pad_last_subarray_x(arr::Array, start_index::Int)
-    for idx in start_index:SENTENCE_SIZE
-        arr[:, idx, end] = zeros(EMBEDDING_DIM)
-    end
-    
-    return arr
-end
+"""
+    get_embedding(word::String)
 
-function pad_last_subarray_y(arr::Array, start_index::Int)
-    for idx in start_index:SENTENCE_SIZE
-        arr[idx, end] = 1
-    end
+Function to get embedding from word.
     
-    return arr
-end
-
-function get_embedding(word)
+# Arguments
+- `word`: Word to get embedding from
+"""
+function get_embedding(word::String)
     word = lowercase(word)
     ind = my_get_word_index[word]
     emb = my_embtable.embeddings[:,ind]
@@ -86,6 +87,11 @@ function get_embedding(word)
     return emb
 end
 
+"""
+    prepare_conll_dataset()
+
+Function to prepare data from conll2003 dataset.
+"""
 function prepare_conll_dataset()
     conll_train_path = joinpath(ASSETS_PATHE, "data", "conll2003", "train.txt")#"../data/conll2003/train.txt"
     conll_test_path = joinpath(ASSETS_PATHE, "data", "conll2003", "test.txt")#"../data/conll2003/test.txt"
@@ -98,6 +104,11 @@ function prepare_conll_dataset()
     return train_x, train_y, test_x, test_y, valid_x, valid_y
 end
 
+"""
+    prepare_ontonotes_dataset()
+
+Function to prepare data from ontonotes5.0 dataset.
+"""
 function prepare_ontonotes_dataset()
     ontonotes_train_path = joinpath(ASSETS_PATHE, "data", "ontonotes5.0", "train.conll")   #"data/ontonotes5.0/train.conll"
     ontonotes_test_path = joinpath(ASSETS_PATHE, "data", "ontonotes5.0", "test.conll")     #"data/ontonotes5.0/test.conll"
@@ -108,16 +119,4 @@ function prepare_ontonotes_dataset()
     valid_x, valid_y = load_dataset_to_matrix(ontonotes_valid_path, '\t')
 
     return train_x, train_y, test_x, test_y, valid_x, valid_y 
-end
-
-function reshape_x_to_rnn_format(arr)
-    x, y, z = size(arr)
-    
-    return reshape(arr, (x, (y * z)))
-end
-
-function reshape_y_to_rnn_format(arr)
-    x, y = size(arr)
-
-    return reshape(arr, (x * y))
 end

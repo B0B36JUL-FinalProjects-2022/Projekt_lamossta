@@ -9,15 +9,35 @@ export run_on_conll, run_on_ontonotes, onehot_y, train, accuracy_onehot, evaluat
 
 
 const BATCH_SIZE = 32
-const EPOCHS = 10
+EPOCHS = 1 #for demonstrating purposes
 const LSTM_OUTPUT_DIM = 32
-const ASSETS_PATHS = chop(dirname(@__FILE__), tail=3) 
+ASSETS_PATHS = chop(dirname(@__FILE__), tail=3) 
 
-function onehot_y(y_data)
+"""
+    onehot_y(y_data::Vector{Int32})
+
+Function to turn y labels vector to one hot Flux representation.
+    
+# Arguments
+- `y_data`: Vector of labels   
+"""
+function onehot_y(y_data::Vector{Int32})
     return onehotbatch(y_data, 1:3)
 end
 
-function train(x_data, y_data, valid_x, valid_y, graph_file_path)
+"""
+    train(x_data::Array{Float32}, y_data::Flux.OneHotMatrix, valid_x::Array{Float32}, valid_y::Flux.OneHotMatrix, graph_file_path::String)
+
+Function to train my RNN and output classification model.
+    
+# Arguments
+- `x_data`: Array of x traning features
+- `y_data`: OneHotMatrix of training labels
+- `valid_x`: Array of x features from validation set
+- `valid_y`: OneHotMatrix of validation labels
+- `graph_file_path`: Path to file which stores training statistics for future evaluation in notebook     
+"""
+function train(x_data::Array{Float32}, y_data::Flux.OneHotMatrix, valid_x::Array{Float32}, valid_y::Flux.OneHotMatrix, graph_file_path::String)
     cur_epoch = 0
     dataset = Flux.Data.DataLoader((x_data, y_data), batchsize=BATCH_SIZE, shuffle=true)
     graph_file = open(graph_file_path, "w")
@@ -63,14 +83,24 @@ function train(x_data, y_data, valid_x, valid_y, graph_file_path)
     return model
 end    
 
+"""
+    run_on_conll()
+
+Function to run training on conll2003 dataset.     
+"""
 function run_on_conll()
     train_x, train_y, test_x, test_y, valid_x, valid_y = prepare_conll_dataset()
     graph_file_path = joinpath(ASSETS_PATHS, "data", "loss_conll.txt")   #"../data/loss_conll.txt"
     model = train(train_x, onehot_y(train_y), valid_x, onehot_y(valid_y), graph_file_path)
-
+    
     evaluate(model, test_x, onehot_y(test_y), "conll2003")
 end
 
+"""
+    run_on_ontonotes()
+
+Function to run training on OntoNotes5.0 dataset.     
+"""
 function run_on_ontonotes()
     train_x, train_y, test_x, test_y, valid_x, valid_y = prepare_ontonotes_dataset()
     graph_file_path = joinpath(ASSETS_PATHS, "data", "loss_ontonotes.txt")    #"../data/loss_ontonotes.txt"
@@ -79,11 +109,31 @@ function run_on_ontonotes()
     evaluate(model, test_x, onehot_y(test_y), "OntoNotes5.0")
 end
 
-function accuracy_onehot(y_pred, y)
+"""
+    accuracy_onehot(y_pred::Matrix{Float32}, y::Flux.OneHotArrays.OneHotMatrix{UInt32, Vector{UInt32}})
+
+Function to compute accuracy of y predictions against groundtruth labels.
+    
+# Arguments
+- `y_pred`: Matrix of prediction labels
+- `y`: OneHot of ground truth labels   
+"""
+function accuracy_onehot(y_pred::Matrix{Float32}, y::Flux.OneHotArrays.OneHotMatrix{UInt32, Vector{UInt32}})
     return mean(Flux.onecold(y_pred) .== Flux.onecold(y))
 end
 
-function evaluate(model, test_x, test_y, dataset_name)
+"""
+    evaluate(model, test_x::Array{Float32}, test_y::Flux.OneHotMatrix, dataset_name::String)
+    
+Function to run and evaluate trained model on testing set.
+    
+# Arguments
+- `model`: Trained RNN model
+- `test_x`: Array of testing x features
+- `test_y`: OneHot of testing y labels
+- `dataset_name`: Name of evaluating dataset   
+"""
+function evaluate(model, test_x::Array{Float32}, test_y::Flux.OneHotMatrix, dataset_name::String)
     println("\n")
     println("NER classification report on $dataset_name")
     

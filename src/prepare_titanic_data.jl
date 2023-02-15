@@ -6,10 +6,24 @@ using StatsBase: countmap
 export get_train_features, get_test_features, notdefined_replacement
 
 
-const ASSETS_PATH = chop(dirname(@__FILE__), tail=3) 
+ASSETS_PATH = chop(dirname(@__FILE__), tail=3) 
 
+"""
+    notdefined_replacement(col_val::Any, replace_val::Any)
+
+Function to replace missing or NaN value from DataFrame.
+    
+# Arguments
+- `col_val`: Value from DataFrame to check
+- `replace_val`: Replacement value in case of NaN or missing    
+"""
 notdefined_replacement(col_val::Any, replace_val::Any) = ismissing(col_val) || (col_val isa Number && isnan(col_val)) ? replace_val : col_val
 
+"""
+    get_train_features()
+
+Function to get training features from Titanic dataset
+"""
 function get_train_features()
     train_data = CSV.read(joinpath(ASSETS_PATH, "data", "titanic", "train.csv"), DataFrame) #"../data/titanic/train.csv"
 
@@ -32,6 +46,11 @@ function get_train_features()
     return train_x, train_y
 end
 
+"""
+    get_test_features()
+
+Function to get testing features from Titanic dataset
+"""
 function get_test_features()
     test_data = CSV.read(joinpath(ASSETS_PATH, "data", "titanic", "test.csv"), DataFrame)  #"../data/titanic/test.csv"
 
