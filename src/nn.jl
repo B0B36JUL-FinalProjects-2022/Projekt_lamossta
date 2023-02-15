@@ -1,18 +1,17 @@
-module Ner_Lstm
-
 using Flux
 using Flux.Losses
 using Flux: onehotbatch, onehot
 using Statistics: mean
 
-include("./prepare_ner_data.jl")
-using .Ner_Data
+include("prepare_ner_data.jl")
 
 export run_on_conll, run_on_ontonotes
+
 
 const BATCH_SIZE = 32
 const EPOCHS = 10
 const LSTM_OUTPUT_DIM = 32
+const ASSETS_PATHS = chop(dirname(@__FILE__), tail=3) 
 
 function onehot_y(y_data)
     return onehotbatch(y_data, 1:3)
@@ -24,8 +23,8 @@ function train(x_data, y_data, valid_x, valid_y, graph_file_path)
     graph_file = open(graph_file_path, "w")
 
     model = Chain(
-        LSTM(Ner_Data.EMBEDDING_DIM => LSTM_OUTPUT_DIM),
-        Dense(LSTM_OUTPUT_DIM => Ner_Data.IOB_DIM),
+        LSTM(EMBEDDING_DIM => LSTM_OUTPUT_DIM),
+        Dense(LSTM_OUTPUT_DIM => IOB_DIM),
         softmax
     )
 
@@ -65,16 +64,16 @@ function train(x_data, y_data, valid_x, valid_y, graph_file_path)
 end    
 
 function run_on_conll()
-    train_x, train_y, test_x, test_y, valid_x, valid_y = Ner_Data.prepare_conll_dataset()
-    graph_file_path = "../data/loss_conll.txt"
+    train_x, train_y, test_x, test_y, valid_x, valid_y = prepare_conll_dataset()
+    graph_file_path = joinpath(ASSETS_PATHS, "data", "loss_conll.txt")   #"../data/loss_conll.txt"
     model = train(train_x, onehot_y(train_y), valid_x, onehot_y(valid_y), graph_file_path)
 
     evaluate(model, test_x, onehot_y(test_y), "conll2003")
 end
 
 function run_on_ontonotes()
-    train_x, train_y, test_x, test_y, valid_x, valid_y = Ner_Data.prepare_ontonotes_dataset()
-    graph_file_path = "../data/loss_ontonotes.txt"
+    train_x, train_y, test_x, test_y, valid_x, valid_y = prepare_ontonotes_dataset()
+    graph_file_path = joinpath(ASSETS_PATHS, "data", "loss_ontonotes.txt")    #"../data/loss_ontonotes.txt"
     model = train(train_x, onehot_y(train_y), valid_x, onehot_y(valid_y), graph_file_path)
 
     evaluate(model, test_x, onehot_y(test_y), "OntoNotes5.0")
@@ -101,6 +100,4 @@ function evaluate(model, test_x, test_y, dataset_name)
 
     println("Loss on testing set: $loss_value")
     println("Accuracy on testing set: $accuracy")
-end
-
 end

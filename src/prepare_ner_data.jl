@@ -1,5 +1,3 @@
-module Ner_Data
-
 using Embeddings
 using DataFrames
 
@@ -8,10 +6,11 @@ export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM,
 const SENTENCE_SIZE = 30
 const EMBEDDING_DIM = 100
 const IOB_DIM = 3
+const ASSETS_PATHE = chop(dirname(@__FILE__), tail=3) 
 
 @info "Loading embeddings to memory"
 
-my_embtable = load_embeddings(GloVe{:en}, "../data/glove.6B.100d.txt")
+my_embtable = load_embeddings(GloVe{:en}, joinpath(ASSETS_PATHE, "data", "glove.6B.100d.txt"))
 my_get_word_index = Dict(word=>ii for (ii,word) in enumerate(my_embtable.vocab))
 my_emtable_vocab_values = values(my_embtable.vocab)
 
@@ -88,9 +87,9 @@ function get_embedding(word)
 end
 
 function prepare_conll_dataset()
-    conll_train_path = "../data/conll2003/train.txt"
-    conll_test_path = "../data/conll2003/test.txt"
-    conll_valid_path = "../data/conll2003/valid.txt"
+    conll_train_path = joinpath(ASSETS_PATHE, "data", "conll2003", "train.txt")#"../data/conll2003/train.txt"
+    conll_test_path = joinpath(ASSETS_PATHE, "data", "conll2003", "test.txt")#"../data/conll2003/test.txt"
+    conll_valid_path = joinpath(ASSETS_PATHE, "data", "conll2003", "valid.txt")#"../data/conll2003/valid.txt"
     
     train_x, train_y = load_dataset_to_matrix(conll_train_path, ' ')
     test_x, test_y = load_dataset_to_matrix(conll_test_path, ' ')
@@ -100,9 +99,9 @@ function prepare_conll_dataset()
 end
 
 function prepare_ontonotes_dataset()
-    ontonotes_train_path = "data/ontonotes5.0/train.conll"
-    ontonotes_test_path = "data/ontonotes5.0/test.conll"
-    ontonotes_valid_path = "data/ontonotes5.0/development.conll"
+    ontonotes_train_path = joinpath(ASSETS_PATHE, "data", "ontonotes5.0", "train.conll")   #"data/ontonotes5.0/train.conll"
+    ontonotes_test_path = joinpath(ASSETS_PATHE, "data", "ontonotes5.0", "test.conll")     #"data/ontonotes5.0/test.conll"
+    ontonotes_valid_path = joinpath(ASSETS_PATHE, "data", "ontonotes5.0", "development.conll") #"data/ontonotes5.0/development.conll"
 
     train_x, train_y = load_dataset_to_matrix(ontonotes_train_path, '\t')
     test_x, test_y = load_dataset_to_matrix(ontonotes_test_path, '\t')
@@ -121,6 +120,4 @@ function reshape_y_to_rnn_format(arr)
     x, y = size(arr)
 
     return reshape(arr, (x * y))
-end
-
 end
