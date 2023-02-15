@@ -72,14 +72,14 @@ function load_dataset_to_matrix(path::String, separator::Char)
 end
 
 """
-    get_embedding(word::String)
+    get_embedding(word::SubString{String})
 
 Function to get embedding from word.
     
 # Arguments
 - `word`: Word to get embedding from
 """
-function get_embedding(word::String)
+function get_embedding(word::SubString{String})
     word = lowercase(word)
     ind = my_get_word_index[word]
     emb = my_embtable.embeddings[:,ind]
