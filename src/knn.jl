@@ -3,7 +3,9 @@ using DataStructures: counter
 
 include("prepare_titanic_data.jl")
 include("distance_functions.jl")
-    
+
+export predict, find_nearest_neighbours, evaluate 
+
 
 function find_nearest_neighbours(k::Int64, distance_func::Any, train_x::Matrix{Float64}, train_y::Vector{Int64}, test_x::Matrix{Float64})
     rows, _ = size(test_x)

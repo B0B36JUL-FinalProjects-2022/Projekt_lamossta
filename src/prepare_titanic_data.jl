@@ -3,7 +3,7 @@ using CSV
 using Statistics: mean
 using StatsBase: countmap
 
-export get_train_features, get_test_features
+export get_train_features, get_test_features, notdefined_replacement
 
 
 const ASSETS_PATH = chop(dirname(@__FILE__), tail=3) 

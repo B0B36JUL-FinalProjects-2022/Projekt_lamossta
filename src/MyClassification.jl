@@ -1,4 +1,4 @@
-module MyClassificator
+module MyClassification
 
 include("knn.jl")
 include("nn.jl")

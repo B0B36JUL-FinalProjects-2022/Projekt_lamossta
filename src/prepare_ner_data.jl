@@ -1,7 +1,7 @@
 using Embeddings
 using DataFrames
 
-export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM, SENTENCE_SIZE
+export prepare_conll_dataset, prepare_ontonotes_dataset, EMBEDDING_DIM, IOB_DIM, SENTENCE_SIZE, load_dataset_to_matrix, pad_last_subarray_x, pad_last_subarray_y, get_embedding, reshape_x_to_rnn_format, reshape_y_to_rnn_format   
 
 const SENTENCE_SIZE = 30
 const EMBEDDING_DIM = 100
