@@ -47,7 +47,7 @@ function train(x_data, y_data, valid_x, valid_y, graph_file_path)
 
         @info "Accuracy on validation set: $accuracy"
         @info "Loss on validation set: $loss_val"
-        println(graph_file, "$cur_epoch $loss_val")
+        println(graph_file, "$cur_epoch $loss_val $accuracy")
     end    
 
     optimizer = ADAM()
@@ -66,7 +66,7 @@ end
 
 function run_on_conll()
     train_x, train_y, test_x, test_y, valid_x, valid_y = Ner_Data.prepare_conll_dataset()
-    graph_file_path = "./data/loss_conll.txt"
+    graph_file_path = "../data/loss_conll.txt"
     model = train(train_x, onehot_y(train_y), valid_x, onehot_y(valid_y), graph_file_path)
 
     evaluate(model, test_x, onehot_y(test_y), "conll2003")
@@ -74,7 +74,7 @@ end
 
 function run_on_ontonotes()
     train_x, train_y, test_x, test_y, valid_x, valid_y = Ner_Data.prepare_ontonotes_dataset()
-    graph_file_path = "./data/loss_ontonotes.txt"
+    graph_file_path = "../data/loss_ontonotes.txt"
     model = train(train_x, onehot_y(train_y), valid_x, onehot_y(valid_y), graph_file_path)
 
     evaluate(model, test_x, onehot_y(test_y), "OntoNotes5.0")
@@ -101,6 +101,6 @@ function evaluate(model, test_x, test_y, dataset_name)
 
     println("Loss on testing set: $loss_value")
     println("Accuracy on testing set: $accuracy")
-end    
+end
 
 end

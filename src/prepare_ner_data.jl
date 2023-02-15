@@ -11,7 +11,7 @@ const IOB_DIM = 3
 
 @info "Loading embeddings to memory"
 
-my_embtable = load_embeddings(GloVe{:en}, "./data/glove.6B.100d.txt")
+my_embtable = load_embeddings(GloVe{:en}, "../data/glove.6B.100d.txt")
 my_get_word_index = Dict(word=>ii for (ii,word) in enumerate(my_embtable.vocab))
 my_emtable_vocab_values = values(my_embtable.vocab)
 
@@ -88,9 +88,9 @@ function get_embedding(word)
 end
 
 function prepare_conll_dataset()
-    conll_train_path = "./data/conll2003/train.txt"
-    conll_test_path = "./data/conll2003/test.txt"
-    conll_valid_path = "./data/conll2003/valid.txt"
+    conll_train_path = "../data/conll2003/train.txt"
+    conll_test_path = "../data/conll2003/test.txt"
+    conll_valid_path = "../data/conll2003/valid.txt"
     
     train_x, train_y = load_dataset_to_matrix(conll_train_path, ' ')
     test_x, test_y = load_dataset_to_matrix(conll_test_path, ' ')
@@ -100,9 +100,9 @@ function prepare_conll_dataset()
 end
 
 function prepare_ontonotes_dataset()
-    ontonotes_train_path = "./data/ontonotes5.0/train.conll"
-    ontonotes_test_path = "./data/ontonotes5.0/test.conll"
-    ontonotes_valid_path = "./data/ontonotes5.0/development.conll"
+    ontonotes_train_path = "data/ontonotes5.0/train.conll"
+    ontonotes_test_path = "data/ontonotes5.0/test.conll"
+    ontonotes_valid_path = "data/ontonotes5.0/development.conll"
 
     train_x, train_y = load_dataset_to_matrix(ontonotes_train_path, '\t')
     test_x, test_y = load_dataset_to_matrix(ontonotes_test_path, '\t')
