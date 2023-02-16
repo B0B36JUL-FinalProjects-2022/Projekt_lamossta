@@ -5,7 +5,7 @@ The project is divided into two parts:
 2. Titanic survival classification using KNN and Logistic regression
 
 # Project Installation
-Package is not officially registerd but you can it using following command:
+Package is not officially registerd but you can download it using following command:
 ```julia
 (@v1.8) pkg> add https://github.com/B0B36JUL-FinalProjects-2022/Projekt_lamossta
 ```
