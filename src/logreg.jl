@@ -4,6 +4,16 @@ using Statistics: mean
 export logistic_loss_gradient, logistic_loss_gradient_descent, lr_classify, zero_to_negative_labels, negative_to_zero_label, run_lr_on_titanic 
 
 
+"""
+    logistic_loss_gradient(w::Vector{Float64}, x_data::Matrix{Float64}, labels_y::Vector{Int64})
+
+Function to compute gradient of logistic loss.
+    
+# Arguments
+- `w`: given weights from previous iterations
+- `x_data`: x data features
+- `labels_y`: y labels from dataset  
+"""
 function logistic_loss_gradient(w::Vector{Float64}, x_data::Matrix{Float64}, labels_y::Vector{Int64})
     rows, cols = size(x_data)
     labeled_data =  labels_y
@@ -22,6 +32,17 @@ function logistic_loss_gradient(w::Vector{Float64}, x_data::Matrix{Float64}, lab
     return sum(output_mat, dims=1) .* (1 / rows) 
 end
 
+"""
+    logistic_loss_gradient_descent(training_x::Matrix{Float64}, training_y::Vector{Int64}; max_iter::Int64=17000, learning_rate::Float64=0.0001)
+
+Function to perform gradient descent and in max iterations find weights for classification.
+    
+# Arguments
+- `train_X`: x features from training set
+- `training_y`: y labels from training set
+- `max_iter`: number of iterations to perform gradient descent
+- `learning_rate`: learning rate parameter value  
+"""
 function logistic_loss_gradient_descent(training_x::Matrix{Float64}, training_y::Vector{Int64}; max_iter::Int64=17000, learning_rate::Float64=0.0001)
     rows, cols = size(training_x)
     w = ones(Float64, cols)
@@ -34,6 +55,14 @@ function logistic_loss_gradient_descent(training_x::Matrix{Float64}, training_y:
     return w
 end
 
+"""
+    lr_classify(features::Vector{Float64})
+
+Function to classify features from gradient descent.
+    
+# Arguments
+- `features`: features obtained from gradient descent  
+"""
 function lr_classify(features::Vector{Float64})
     class_labels = Vector{Int64}(undef, length(features))
     
@@ -48,6 +77,14 @@ function lr_classify(features::Vector{Float64})
     return negative_to_zero_label(class_labels)
 end
 
+"""
+    zero_to_negative_labels(y_labels::Vector{Int64})
+
+Function to convert 0/1 labels to -1/1 format of labels.
+    
+# Arguments
+- `y_labels`: y_features from training set  
+"""
 function zero_to_negative_labels(y_labels::Vector{Int64})
     for i in eachindex(y_labels)
         if y_labels[i] == 0
@@ -58,6 +95,14 @@ function zero_to_negative_labels(y_labels::Vector{Int64})
     return y_labels
 end
 
+"""
+    negative_to_zero_label(y_labels::Vector{Int64})
+
+Function to convert -1/1 labels to 0/1 format of labels.
+    
+# Arguments
+- `y_labels`: y_features from training set  
+"""
 function negative_to_zero_label(y_labels::Vector{Int64})
     for i in eachindex(y_labels)
         if y_labels[i] == -1
@@ -68,6 +113,15 @@ function negative_to_zero_label(y_labels::Vector{Int64})
     return y_labels
 end
 
+"""
+    run_lr_on_titanic(maxiter::Int64, lr::Float64)
+
+Function to run logistic regression on Titanic dataset.
+    
+# Arguments
+- `max_iter`: Number of iterations to perform gradient descent
+- `lr`: Learning rate parameter  
+"""
 function run_lr_on_titanic(maxiter::Int64, lr::Float64)
     train_x, train_y = get_train_features()
     test_x, test_y = get_test_features()

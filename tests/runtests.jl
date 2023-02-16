@@ -1,5 +1,6 @@
 using MyClassification
 using Test
+using Flux
 
 @testset "MyClassification.jl" begin
     
@@ -35,9 +36,9 @@ using Test
     end
 
     @testset "nn.jl" begin
-        vec_y = [1, 2, 3]
+        vec_y = Int32.([1, 2, 3])
         onehot_batch = Flux.onehotbatch([1, 2, 3], 1:3)
-        y_predictions = [0.541 0.412 0.147; 0.4780 0.0 0.541; 0.748 0.478 0.895]
+        y_predictions = Float32.([0.541 0.412 0.147; 0.4780 0.0 0.541; 0.748 0.478 0.895])
         y_true = Flux.onehotbatch([2, 1, 1], 1:3)
         
         @test onehot_y(vec_y) == onehot_batch
@@ -57,5 +58,29 @@ using Test
         @test notdefined_replacement(missing_val, replace_val) == replace_val
         @test notdefined_replacement(nan_val, replace_val_num) == 24.5
         @test notdefined_replacement(replace_val, replace_val_num) == replace_val
+    end
+
+    @testset "logreg.jl" begin
+        negative_labels = [1,-1,-1,1]
+        zero_labels = [1,0,0,1]
+        predictions = [2.5, -1, -5.4, 47.78]
+        w = ones(Float64, 3)
+        x_datas = [4.5 6.2 4.0; 5.8 7.4 2.9]
+        y_data_labels = [1, 0]
+
+        @test zero_to_negative_labels(zero_labels) == [1, -1, -1, 1]
+        @test zero_to_negative_labels(zero_labels) isa Vector{Int64}
+
+        @test negative_to_zero_label(negative_labels) == [1, 0, 0, 1]
+        @test negative_to_zero_label(negative_labels) isa Vector{Int64}
+
+        @test lr_classify(predictions) == [1, 0, 0, 1]
+        @test lr_classify(predictions) isa Vector{Int64}
+
+        @test logistic_loss_gradient(w, x_datas, y_data_labels) == [-0.024720620918834653 -0.006278493206054634 -0.03597241992418312]
+        @test logistic_loss_gradient(w, x_datas, y_data_labels) isa Matrix{Float64}
+
+        @test logistic_loss_gradient_descent(x_datas, y_data_labels, max_iter=1) == [1.000002472062092, 1.0000006278493205, 1.0000035972419925]
+        @test logistic_loss_gradient_descent(x_datas, y_data_labels, max_iter=1) isa Vector{Float64}
     end
 end
