@@ -5,13 +5,13 @@ The project is divided into two parts:
 2. Titanic survival classification using KNN and Logistic regression
 
 # Project Installation
-Package is not officially registerd but you can download it using following command:
+Package is not officially registered but you can download it using following command:
 ```julia
 (@v1.8) pkg> add https://github.com/B0B36JUL-FinalProjects-2022/Projekt_lamossta
 ```
 
 # NER structure
-- [`src/nn.jl`](src/nn.jl) => implemeted classification LSTM net
+- [`src/nn.jl`](src/nn.jl) => implemented classification LSTM net
 - [`src/prepare_ner_data.jl`](src/prepare_ner_data.jl) => dataset loading, embedding conversion and feature vector construction
 
 # Titanic structure
