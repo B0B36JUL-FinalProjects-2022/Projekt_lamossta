@@ -1,4 +1,3 @@
-include("prepare_titanic_data.jl")
 using Statistics: mean
 
 export logistic_loss_gradient, logistic_loss_gradient_descent, lr_classify, zero_to_negative_labels, negative_to_zero_label, run_lr_on_titanic 
@@ -122,7 +121,7 @@ Function to run logistic regression on Titanic dataset.
 - `max_iter`: Number of iterations to perform gradient descent
 - `lr`: Learning rate parameter  
 """
-function run_lr_on_titanic(maxiter::Int64, lr::Float64)
+function run_lr_on_titanic(; maxiter::Int64=17000, lr::Float64=0.0001)
     train_x, train_y = get_train_features()
     test_x, test_y = get_test_features()
 

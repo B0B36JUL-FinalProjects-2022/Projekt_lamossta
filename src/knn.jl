@@ -1,9 +1,6 @@
 using Statistics: mean
 using DataStructures: counter
 
-include("prepare_titanic_data.jl")
-include("distance_functions.jl")
-
 export predict, find_nearest_neighbours, evaluate 
 
 

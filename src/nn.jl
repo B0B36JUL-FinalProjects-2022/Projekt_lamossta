@@ -3,8 +3,6 @@ using Flux.Losses
 using Flux: onehotbatch, onehot
 using Statistics: mean
 
-include("prepare_ner_data.jl")
-
 export run_on_conll, run_on_ontonotes, onehot_y, train, accuracy_onehot, evaluate
 
 
